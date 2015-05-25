@@ -19,7 +19,7 @@ import com.sun.jersey.api.client.WebResource;
 public class BatchRegister {
 
 	public static void main(String[] args) throws Exception {
-		File myFile = new File("C://java/shenbao4.xlsx");
+		File myFile = new File("E://liangzhi/shenbao2015050702.xlsx");
 		//BufferedReader fis = new BufferedReader(new InputStreamReader(new FileInputStream(myFile), "UTF8"));
 		FileInputStream fis = new FileInputStream(myFile);
 
@@ -27,7 +27,7 @@ public class BatchRegister {
 		XSSFWorkbook myWorkBook = new XSSFWorkbook(fis);
 
 		// Return first sheet from the XLSX workbook
-		XSSFSheet mySheet = myWorkBook.getSheetAt(1);
+		XSSFSheet mySheet = myWorkBook.getSheetAt(0);
 
 		// Get iterator to all the rows in current sheet
 		Iterator < Row > rowIterator = mySheet.iterator();
@@ -62,7 +62,7 @@ public class BatchRegister {
 			req.setEmail(emailStr);
 			req.setPhone(phoneStr);
 			Client client = Client.create();
-			WebResource webResource = client.resource("http://hostname/api/users/stemtestsysregister");
+			WebResource webResource = client.resource("http://www.stemcloud.cn/api/users/stemtestsysregister");
 			ClientResponse response = webResource.type(MediaType.APPLICATION_JSON + ";charset=utf-8")
 					.post(ClientResponse.class, req);
 			if (response.getStatus() != 200) {
