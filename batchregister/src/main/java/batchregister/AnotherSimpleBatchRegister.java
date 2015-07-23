@@ -14,6 +14,7 @@ import org.apache.poi.xssf.usermodel.XSSFSheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
 import com.liangzhi.commons.domain.User;
+import com.liangzhi.commons.domain.UserCredentials;
 import com.liangzhi.commons.domain.UserRegistration;
 import com.liangzhi.commons.domain.UserType;
 import com.sun.jersey.api.client.Client;
@@ -23,7 +24,7 @@ import com.sun.jersey.api.client.WebResource;
 public class AnotherSimpleBatchRegister {
 
     public static void main(String[] args) throws Exception {
-        File myFile = new File("E://liangzhi/201507223.xlsx");
+        File myFile = new File("E://liangzhi/20150722.xlsx");
         //BufferedReader fis = new BufferedReader(new InputStreamReader(new FileInputStream(myFile), "UTF8"));
         FileInputStream fis = new FileInputStream(myFile);
 
@@ -36,8 +37,9 @@ public class AnotherSimpleBatchRegister {
         // Get iterator to all the rows in current sheet
         Iterator < Row > rowIterator = mySheet.iterator();
         
-        //rowIterator.next();
+        rowIterator.next();
 
+        boolean skip = true;
         // Traversing over each row of XLSX file
         while (rowIterator.hasNext()) {
             Row row = rowIterator.next();
@@ -48,6 +50,12 @@ public class AnotherSimpleBatchRegister {
             String nameStr = name.getStringCellValue();
             String nationalIdStr = nationalId.getStringCellValue();
             String phoneStr = phone.getStringCellValue();
+            if (!nationalIdStr.equals("450205199809091312") && skip) {
+                System.out.println("Skipping to 450205199809091312");
+                continue;
+            } else {
+                skip = false;
+            }
             UserRegistration registration = new UserRegistration();
             registration.setUsername(nationalIdStr);
             registration.setBasicPassword("stem123456");
@@ -56,11 +64,22 @@ public class AnotherSimpleBatchRegister {
             registration.setPhoneNumber(phoneStr);
             registration.setNationalId(nationalIdStr);
             Client client = Client.create();
+            client.setConnectTimeout(30000);
+            client.setReadTimeout(30000);
+            // Try to login first
+            WebResource webResource = client.resource("http://www.stemcloud.cn:8080/users/login");
+            UserCredentials credz = new UserCredentials(nationalIdStr, "stem123456");
+            ClientResponse response = webResource.type(MediaType.APPLICATION_JSON)
+                    .post(ClientResponse.class, credz);
+            if (response.getStatus() == 200) {
+                System.out.println("Login successful for user=" + registration.toString() + ", skipping");
+                continue;
+            }
             // Get user
             User user;
-            WebResource webResource = client
+            webResource = client
                     .resource("http://www.stemcloud.cn:8080/users").path("findByUsername").queryParam("username", nationalIdStr);
-            ClientResponse response = webResource.accept(MediaType.APPLICATION_JSON).get(ClientResponse.class);
+            response = webResource.accept(MediaType.APPLICATION_JSON).get(ClientResponse.class);
             if (response.getStatus() == 404) {
                 webResource = client.resource("http://www.stemcloud.cn:8080/users/register");
                 response = webResource.type(MediaType.APPLICATION_JSON + ";charset=utf-8")
@@ -68,6 +87,7 @@ public class AnotherSimpleBatchRegister {
                 if (response.getStatus() != 200) {
                     throw new Exception("response is not 200");
                 }
+                System.out.println("Registering new user " + registration.toString());
             } else if (response.getStatus() == 200) {
                 user = response.getEntity(User.class);
                 user.setBasicPassword("stem123456");
@@ -75,15 +95,16 @@ public class AnotherSimpleBatchRegister {
                 user.setRealName(nameStr);
                 user.setPhoneNumber(phoneStr);
                 user.setNationalId(nationalIdStr);
-                Assert.assertEquals(nationalIdStr, user.getUsername());
+                user.setUsername(user.getUsername().trim());
                 webResource = client.resource("http://www.stemcloud.cn:8080/users");
                 response = webResource.type(MediaType.APPLICATION_JSON)
                         .put(ClientResponse.class, user);
                 if (response.getStatus() != 200) {
                     throw new Exception("response is not 200");
                 }
+                System.out.println("Updating exising user " + registration.toString());
             }
-            System.out.println(registration.toString());
+            //System.out.println(registration.toString());
             }
     }
 
