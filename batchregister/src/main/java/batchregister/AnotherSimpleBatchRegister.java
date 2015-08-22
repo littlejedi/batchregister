@@ -12,6 +12,7 @@ import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.xssf.usermodel.XSSFSheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+import org.jasypt.util.password.BasicPasswordEncryptor;
 
 import com.liangzhi.commons.domain.User;
 import com.liangzhi.commons.domain.UserCredentials;
@@ -24,7 +25,7 @@ import com.sun.jersey.api.client.WebResource;
 public class AnotherSimpleBatchRegister {
 
     public static void main(String[] args) throws Exception {
-        File myFile = new File("E://liangzhi/20150722.xlsx");
+        File myFile = new File("E://liangzhi/yichuan.xlsx");
         //BufferedReader fis = new BufferedReader(new InputStreamReader(new FileInputStream(myFile), "UTF8"));
         FileInputStream fis = new FileInputStream(myFile);
 
@@ -45,13 +46,14 @@ public class AnotherSimpleBatchRegister {
             Row row = rowIterator.next();
             Cell name = row.getCell(0);
             Cell nationalId = row.getCell(2);
+            nationalId.setCellType(Cell.CELL_TYPE_STRING);
             Cell phone = row.getCell(3);
             phone.setCellType(Cell.CELL_TYPE_STRING);
             String nameStr = name.getStringCellValue();
             String nationalIdStr = nationalId.getStringCellValue();
             String phoneStr = phone.getStringCellValue();
-            if (!nationalIdStr.equals("450205199809091312") && skip) {
-                System.out.println("Skipping to 450205199809091312");
+            if (!nationalIdStr.equals("3101073003320150409") && skip) {
+                System.out.println("Skipping to 3101073003320150409");
                 continue;
             } else {
                 skip = false;
@@ -64,17 +66,20 @@ public class AnotherSimpleBatchRegister {
             registration.setPhoneNumber(phoneStr);
             registration.setNationalId(nationalIdStr);
             Client client = Client.create();
-            client.setConnectTimeout(30000);
-            client.setReadTimeout(30000);
+            client.setConnectTimeout(60000);
+            client.setReadTimeout(60000);
+            WebResource webResource = null;
+            ClientResponse response = null;
+            System.out.println(registration.toString());
             // Try to login first
-            WebResource webResource = client.resource("http://www.stemcloud.cn:8080/users/login");
+            /* WebResource webResource = client.resource("http://www.stemcloud.cn:8080/users/login");
             UserCredentials credz = new UserCredentials(nationalIdStr, "stem123456");
             ClientResponse response = webResource.type(MediaType.APPLICATION_JSON)
                     .post(ClientResponse.class, credz);
             if (response.getStatus() == 200) {
                 System.out.println("Login successful for user=" + registration.toString() + ", skipping");
                 continue;
-            }
+            } */
             // Get user
             User user;
             webResource = client
@@ -90,7 +95,9 @@ public class AnotherSimpleBatchRegister {
                 System.out.println("Registering new user " + registration.toString());
             } else if (response.getStatus() == 200) {
                 user = response.getEntity(User.class);
-                user.setBasicPassword("stem123456");
+                BasicPasswordEncryptor passwordEncryptor = new BasicPasswordEncryptor();
+                String encryptedPassword = passwordEncryptor.encryptPassword("stem123456");
+                user.setBasicPassword(encryptedPassword);
                 user.setType(UserType.REGULAR);
                 user.setRealName(nameStr);
                 user.setPhoneNumber(phoneStr);
@@ -104,8 +111,17 @@ public class AnotherSimpleBatchRegister {
                 }
                 System.out.println("Updating exising user " + registration.toString());
             }
-            //System.out.println(registration.toString());
+            // Verify login
+            webResource = client.resource("http://www.stemcloud.cn:8080/users/login");
+            UserCredentials credz = new UserCredentials(nationalIdStr, "stem123456");
+            response = webResource.type(MediaType.APPLICATION_JSON)
+                    .post(ClientResponse.class, credz);
+            if (response.getStatus() == 200) {
+                System.out.println("Login successful for user=" + registration.toString());
+            } else {
+                throw new Exception("Login failed for user=" + registration.toString());
             }
+         }
     }
 
 }
