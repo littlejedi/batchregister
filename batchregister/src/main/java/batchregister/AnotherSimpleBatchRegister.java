@@ -71,7 +71,7 @@ public class AnotherSimpleBatchRegister {
                 user.setNationalId(nameStr);
                 user.setUsername(user.getUsername().trim());
                 webResource = client.resource("http://www.stemcloud.cn:8080/users");
-                response = webResource.type(MediaType.APPLICATION_JSON)
+                response = webResource.path(user.getId().toString()).type(MediaType.APPLICATION_JSON)
                         .put(ClientResponse.class, user);
                 if (response.getStatus() != 200) {
                     throw new Exception("response is not 200");
