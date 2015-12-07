@@ -48,7 +48,7 @@ public class AnotherSimpleBatchRegister {
             ClientResponse response = null;
             //System.out.println(registration.toString());
             // Get user
-            /*User user;
+            User user;
             webResource = client
                     .resource("http://www.stemcloud.cn:8080/users").path("findByUsername").queryParam("username", username);
             response = webResource.accept(MediaType.APPLICATION_JSON).get(ClientResponse.class);
@@ -77,7 +77,7 @@ public class AnotherSimpleBatchRegister {
                     throw new Exception("response is not 200");
                 }
                 System.out.println("Updating exising user " + registration.toString());
-            }*/
+            }
             // Verify login
             webResource = client.resource("http://www.stemcloud.cn:8080/users/login");
             UserCredentials credz = new UserCredentials(username, "stem123456");
