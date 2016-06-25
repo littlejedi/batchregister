@@ -19,7 +19,7 @@ import com.sun.jersey.api.client.WebResource;
 public class BatchRegister {
 
 	public static void main(String[] args) throws Exception {
-		File myFile = new File("E://liangzhi/shenbao2015050702.xlsx");
+		File myFile = new File("C://littlejedi/liangzhi/shuangliuzhongxue.xlsx");
 		//BufferedReader fis = new BufferedReader(new InputStreamReader(new FileInputStream(myFile), "UTF8"));
 		FileInputStream fis = new FileInputStream(myFile);
 
@@ -37,11 +37,11 @@ public class BatchRegister {
 		// Traversing over each row of XLSX file
 		while (rowIterator.hasNext()) {
 			Row row = rowIterator.next();
-			Cell name = row.getCell(2);
-			Cell nationalId = row.getCell(5);
-			Cell phone = row.getCell(8);
+			Cell name = row.getCell(1);
+			Cell nationalId = row.getCell(2);
+			Cell phone = row.getCell(2);
 			phone.setCellType(Cell.CELL_TYPE_STRING);
-			Cell email = row.getCell(9);
+			Cell email = row.getCell(2);
 			String nameStr = name.getStringCellValue();
 			String nationalIdStr = nationalId.getStringCellValue();
 			String phoneStr = null;

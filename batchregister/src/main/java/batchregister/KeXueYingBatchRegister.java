@@ -2,6 +2,7 @@ package batchregister;
 
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.util.Iterator;
 
 import javax.ws.rs.core.MediaType;
@@ -21,12 +22,13 @@ import com.sun.jersey.api.client.ClientResponse;
 import com.sun.jersey.api.client.WebResource;
 import com.sun.jersey.api.client.filter.HTTPBasicAuthFilter;
 
-public class BatchRegisterNewUser {
+// 2016 科学营注册 
+public class KeXueYingBatchRegister {
 
     private static final String PASS = "coreapi!123";
 
     public static void main(String[] args) throws Exception {
-        File myFile = new File("C://littlejedi/liangzhi/putuo2016.xlsx");
+        File myFile = new File("C://littlejedi/liangzhi/kexueying2.xlsx");
         //BufferedReader fis = new BufferedReader(new InputStreamReader(new FileInputStream(myFile), "UTF8"));
         FileInputStream fis = new FileInputStream(myFile);
 
@@ -43,35 +45,45 @@ public class BatchRegisterNewUser {
 
         boolean skip = false;
         
-        boolean printUserInfoOnly = false;
+        boolean printUserInfoOnly = true;
+        
+        String previousProvince = null;
+        int count = 1;
         // Traversing over each row of XLSX file
         while (rowIterator.hasNext()) {
             Row row = rowIterator.next();
-            Cell name = row.getCell(0);
+            Cell province = row.getCell(0);
+            province.setCellType(Cell.CELL_TYPE_STRING);
+            Cell name = row.getCell(2);
             name.setCellType(Cell.CELL_TYPE_STRING);
-            Cell nationalId = row.getCell(1);
+            Cell birthday = row.getCell(5);
+            birthday.setCellType(Cell.CELL_TYPE_STRING);
+            Cell nationalId = row.getCell(7);
             nationalId.setCellType(Cell.CELL_TYPE_STRING);
-            Cell phone = row.getCell(1);
-            phone.setCellType(Cell.CELL_TYPE_STRING);
+            Cell usernameCell = row.createCell(8);
+            usernameCell.setCellType(Cell.CELL_TYPE_STRING);
+            Cell passwordCell = row.createCell(9);
+            passwordCell.setCellType(Cell.CELL_TYPE_STRING);
+            String provinceStr = province.getStringCellValue();
+            if (previousProvince == null || !provinceStr.equals(previousProvince)) {
+            	count = 1;
+            }
+            String number = String.format("%03d", count);
             String nameStr = name.getStringCellValue();
-            String nationalIdStr = nationalId.getStringCellValue();
-            String phoneStr = phone.getStringCellValue();
-            /*if (!nationalIdStr.equals("3101071048220150230") && skip) {
-                System.out.println("Skipping to 3101071048220150230");
-                continue;
-            } else {
-                skip = false;
-            }*/
+            String birthdayStr = birthday.getStringCellValue().replace("-", "");
+            String nationalIdStr = nationalId.getStringCellValue().replaceAll("[^A-Za-z0-9]", "");;
             UserRegistration registration = new UserRegistration();
-            final String username = nationalIdStr;
+            final String username = "2016" + provinceStr + number;
             registration.setUsername(username);
-            final String basicPassword = "stem123456";
+            final String basicPassword = "stem" + birthdayStr;
             //System.out.println(basicPassword);
             registration.setBasicPassword(basicPassword);
             registration.setType(UserType.REGULAR);
             registration.setRealName(nameStr);
-            registration.setPhoneNumber(phoneStr);
+            registration.setPhoneNumber("12345");
             registration.setNationalId(nationalIdStr);
+            usernameCell.setCellValue(username);
+            passwordCell.setCellValue(basicPassword);
             Client client = Client.create();
             client.addFilter(new HTTPBasicAuthFilter("root", PASS));
             client.setConnectTimeout(60000);
@@ -79,6 +91,8 @@ public class BatchRegisterNewUser {
             WebResource webResource = null;
             ClientResponse response = null;
             System.out.println(registration.toString());
+            previousProvince = provinceStr;
+            count++;
             if (printUserInfoOnly) {
             	continue;
             }
@@ -104,6 +118,10 @@ public class BatchRegisterNewUser {
                 throw new Exception("Login failed for user=" + registration.toString());
             }
          }
+        
+        FileOutputStream fileOut = new FileOutputStream("C://littlejedi/liangzhi/kexueying2.xlsx");  
+        myWorkBook.write(fileOut);  
+        fileOut.close();  
     }
 
 	private static void doRegister(String nameStr, String nationalIdStr,

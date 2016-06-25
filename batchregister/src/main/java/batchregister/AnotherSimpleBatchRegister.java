@@ -28,11 +28,11 @@ public class AnotherSimpleBatchRegister {
     private static final String PASS = "coreapi!123";
 
     public static void main(String[] args) throws Exception {
-        for (int i = 1; i <= 140; i++) {
-            String prefix = "ycybb";
-            String realNamePrefix = "英才预备班";
+        for (int i = 1; i <= 15; i++) {
+            String prefix = "stemtestsys";
+            //String realNamePrefix = "è‹±æ‰�é¢„å¤‡ç�­";
             String username = prefix + String.format("%03d", i);
-            String nameStr = realNamePrefix + String.format("%03d", i);
+            String nameStr = prefix + String.format("%03d", i);
             UserRegistration registration = new UserRegistration();
             registration.setUsername(username);
             registration.setBasicPassword("stem123456");
