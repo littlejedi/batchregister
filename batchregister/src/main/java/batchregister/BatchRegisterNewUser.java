@@ -12,6 +12,7 @@ import org.apache.poi.xssf.usermodel.XSSFSheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.jasypt.util.password.BasicPasswordEncryptor;
 
+import com.google.common.base.Strings;
 import com.liangzhi.commons.domain.User;
 import com.liangzhi.commons.domain.UserCredentials;
 import com.liangzhi.commons.domain.UserRegistration;
@@ -26,7 +27,7 @@ public class BatchRegisterNewUser {
     private static final String PASS = "coreapi!123";
 
     public static void main(String[] args) throws Exception {
-        File myFile = new File("C://littlejedi/liangzhi/putuo2016.xlsx");
+        File myFile = new File("C://Nick/stemcloud/yingcai.xlsx");
         //BufferedReader fis = new BufferedReader(new InputStreamReader(new FileInputStream(myFile), "UTF8"));
         FileInputStream fis = new FileInputStream(myFile);
 
@@ -47,31 +48,39 @@ public class BatchRegisterNewUser {
         // Traversing over each row of XLSX file
         while (rowIterator.hasNext()) {
             Row row = rowIterator.next();
-            Cell name = row.getCell(0);
+            Cell name = row.getCell(1);
             name.setCellType(Cell.CELL_TYPE_STRING);
             Cell nationalId = row.getCell(1);
             nationalId.setCellType(Cell.CELL_TYPE_STRING);
             Cell phone = row.getCell(1);
             phone.setCellType(Cell.CELL_TYPE_STRING);
+            Cell password = row.getCell(2);
+            password.setCellType(Cell.CELL_TYPE_STRING);
             String nameStr = name.getStringCellValue();
             String nationalIdStr = nationalId.getStringCellValue();
             String phoneStr = phone.getStringCellValue();
-            /*if (!nationalIdStr.equals("3101071048220150230") && skip) {
-                System.out.println("Skipping to 3101071048220150230");
+            String passwordStr = password.getStringCellValue();
+            /*if (!nationalIdStr.equals("ycjhstem050") && skip) {
+                System.out.println("Skipping to ycjhstem050");
                 continue;
             } else {
                 skip = false;
             }*/
+            if (Strings.isNullOrEmpty(nameStr) || Strings.isNullOrEmpty(nationalIdStr)) {
+            	continue;
+            }
             UserRegistration registration = new UserRegistration();
             final String username = nationalIdStr;
             registration.setUsername(username);
-            final String basicPassword = "stem123456";
+            final String basicPassword = passwordStr;
+            //final String basicPassword = phoneStr;
             //System.out.println(basicPassword);
             registration.setBasicPassword(basicPassword);
             registration.setType(UserType.REGULAR);
             registration.setRealName(nameStr);
             registration.setPhoneNumber(phoneStr);
             registration.setNationalId(nationalIdStr);
+            registration.setEmail(nationalIdStr);
             Client client = Client.create();
             client.addFilter(new HTTPBasicAuthFilter("root", PASS));
             client.setConnectTimeout(60000);
@@ -134,8 +143,7 @@ public class BatchRegisterNewUser {
 		    user.setNationalId(nationalIdStr);
 		    user.setUsername(user.getUsername().trim());
 		    webResource = client.resource("http://www.stemcloud.cn:8080/users").path(user.getId().toString());
-		    response = webResource.type(MediaType.APPLICATION_JSON)
-		            .put(ClientResponse.class, user);
+		    response = webResource.type(MediaType.APPLICATION_JSON).put(ClientResponse.class, user);
 		    if (response.getStatus() != 200) {
 		        throw new Exception("response is not 200");
 		    }
