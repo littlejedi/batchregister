@@ -27,7 +27,7 @@ public class BatchRegisterNewUser {
     private static final String PASS = "coreapi!123";
 
     public static void main(String[] args) throws Exception {
-        File myFile = new File("C://Nick/stemcloud/yingcai.xlsx");
+        File myFile = new File("/root/java/yingcai.xlsx");
         //BufferedReader fis = new BufferedReader(new InputStreamReader(new FileInputStream(myFile), "UTF8"));
         FileInputStream fis = new FileInputStream(myFile);
 
