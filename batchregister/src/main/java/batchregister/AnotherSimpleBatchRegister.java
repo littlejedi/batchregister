@@ -28,16 +28,16 @@ public class AnotherSimpleBatchRegister {
     private static final String PASS = "coreapi!123";
 
     public static void main(String[] args) throws Exception {
-        for (int i = 1; i <= 15; i++) {
-            String prefix = "stemtestsys";
+        for (int i = 11; i <= 15; i++) {
+            String prefix = "sznswgy";
             //String realNamePrefix = "è‹±æ‰�é¢„å¤‡ç�­";
             String username = prefix + String.format("%03d", i);
             String nameStr = prefix + String.format("%03d", i);
             UserRegistration registration = new UserRegistration();
             registration.setUsername(username);
-            registration.setBasicPassword("stem123456");
+            registration.setBasicPassword("stem123");
             registration.setType(UserType.REGULAR);
-            registration.setRealName(nameStr);
+            registration.setRealName("备用账号" + nameStr);
             registration.setPhoneNumber(username);
             registration.setNationalId(nameStr);
             Client client = Client.create();
@@ -63,7 +63,7 @@ public class AnotherSimpleBatchRegister {
             } else if (response.getStatus() == 200) {
                 user = response.getEntity(User.class);
                 BasicPasswordEncryptor passwordEncryptor = new BasicPasswordEncryptor();
-                String encryptedPassword = passwordEncryptor.encryptPassword("stem123456");
+                String encryptedPassword = passwordEncryptor.encryptPassword("stem123");
                 user.setBasicPassword(encryptedPassword);
                 user.setType(UserType.REGULAR);
                 user.setRealName(nameStr);
@@ -80,7 +80,7 @@ public class AnotherSimpleBatchRegister {
             }
             // Verify login
             webResource = client.resource("http://www.stemcloud.cn:8080/users/login");
-            UserCredentials credz = new UserCredentials(username, "stem123456");
+            UserCredentials credz = new UserCredentials(username, "stem123");
             response = webResource.type(MediaType.APPLICATION_JSON)
                     .post(ClientResponse.class, credz);
             if (response.getStatus() == 200) {

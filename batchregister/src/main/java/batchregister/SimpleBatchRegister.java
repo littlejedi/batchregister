@@ -19,7 +19,7 @@ import com.sun.jersey.api.client.WebResource;
 public class SimpleBatchRegister {
     
     public static void main(String[] args) throws Exception {
-        File myFile = new File("E://liangzhi/20150711.xlsx");
+        File myFile = new File("C://Nick/stemcloud/xian.xlsx");
         //BufferedReader fis = new BufferedReader(new InputStreamReader(new FileInputStream(myFile), "UTF8"));
         FileInputStream fis = new FileInputStream(myFile);
 
