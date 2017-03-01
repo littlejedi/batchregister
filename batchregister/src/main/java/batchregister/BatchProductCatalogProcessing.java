@@ -9,12 +9,16 @@ import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.xssf.usermodel.XSSFSheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
+import com.google.common.base.Strings;
+
 public class BatchProductCatalogProcessing {
 	
 	
 	public static void main(String[] args) throws Exception {
 		
-		  File myFile = new File("C://Nick/stemcloud/catalog/test.xlsx");
+		  int base = 11;
+		
+		  File myFile = new File("C://Littlejedi/liangzhi/productcatalog.xlsx");
 	      //BufferedReader fis = new BufferedReader(new InputStreamReader(new FileInputStream(myFile), "UTF8"));
 	      FileInputStream fis = new FileInputStream(myFile);
 
@@ -22,7 +26,7 @@ public class BatchProductCatalogProcessing {
 	      XSSFWorkbook myWorkBook = new XSSFWorkbook(fis);
 
 	      // Return 4th sheet from the XLSX workbook
-	      XSSFSheet mySheet = myWorkBook.getSheetAt(4);
+	      XSSFSheet mySheet = myWorkBook.getSheetAt(0);
 
 	      // Get iterator to all the rows in current sheet
 	      Iterator < Row > rowIterator = mySheet.iterator();
@@ -32,55 +36,77 @@ public class BatchProductCatalogProcessing {
 	      // Traversing over each row of XLSX file
 	      while (rowIterator.hasNext()) {
 	    	  Row row = rowIterator.next();
-	    	  Cell courseProductId = row.getCell(1);
-	    	  Cell productName = row.getCell(2);
-	    	  Cell materialId = row.getCell(3);
-	    	  Cell materialName = row.getCell(4);
-	    	  Cell materialQuantity = row.getCell(5);
-	    	  Cell materialIdTwo = row.getCell(6);
-	    	  Cell materialIdTwoName = row.getCell(7);
-	    	  Cell materialIdThree = row.getCell(8);
-	    	  Cell materialIdThreeName = row.getCell(9);
-	    	  Cell materialIdFour = row.getCell(10);
-	    	  Cell materialIdFourName = row.getCell(11);
-	    	  courseProductId.setCellType(Cell.CELL_TYPE_STRING);
+	    	  Cell productId = row.getCell(1);
+	    	  Cell productName = row.getCell(base);
+	    	  Cell materialId = row.getCell(base+1);
+	    	  Cell materialName = row.getCell(base+2);
+	    	  Cell materialQuantity = row.getCell(4);
+	    	  Cell materialIdTwo = row.getCell(base+4);
+	    	  Cell materialIdTwoName = row.getCell(base+5);
+	    	  Cell materialIdThree = row.getCell(base+6);
+	    	  Cell materialIdThreeName = row.getCell(base+7);
+	    	  Cell materialIdFour = row.getCell(base+8);
+	    	  Cell materialIdFourName = row.getCell(base+9);
+	    	  if (productId == null) {
+	    		  break;
+	    	  }
+	    	  productId.setCellType(Cell.CELL_TYPE_STRING);
 	    	  productName.setCellType(Cell.CELL_TYPE_STRING);
 	    	  materialId.setCellType(Cell.CELL_TYPE_STRING);
 	    	  materialName.setCellType(Cell.CELL_TYPE_STRING);
 	    	  materialQuantity.setCellType(Cell.CELL_TYPE_STRING);
-	    	  materialIdTwo.setCellType(Cell.CELL_TYPE_STRING);
-	    	  materialIdTwoName.setCellType(Cell.CELL_TYPE_STRING);
-	    	  materialIdThree.setCellType(Cell.CELL_TYPE_STRING);
-	    	  materialIdThreeName.setCellType(Cell.CELL_TYPE_STRING);
+	    	  if (materialIdTwo != null) {
+	    		  materialIdTwo.setCellType(Cell.CELL_TYPE_STRING);
+	    	  }
+	    	  if (materialIdTwoName != null) {
+	    		  materialIdTwoName.setCellType(Cell.CELL_TYPE_STRING);
+	    	  }
+	    	  if (materialIdThree != null) {
+	    		  materialIdThree.setCellType(Cell.CELL_TYPE_STRING);
+	    	  }
+	    	  if (materialIdThreeName != null) {
+	    		  materialIdThreeName.setCellType(Cell.CELL_TYPE_STRING);
+	    	  }
 	    	  if (materialIdFour != null) {
 	    		  materialIdFour.setCellType(Cell.CELL_TYPE_STRING);
 	    	  }
 	    	  if (materialIdFourName != null) {
 	    		  materialIdFourName.setCellType(Cell.CELL_TYPE_STRING);
 	    	  }
+	    	  final String productIdString = Strings.nullToEmpty(productId.getStringCellValue());
+	    	  final String productNameString = Strings.nullToEmpty(productName.getStringCellValue());
+	    	  final String materialIdString = Strings.nullToEmpty(materialId.getStringCellValue());
+	    	  final String materialNameString = Strings.nullToEmpty(materialName.getStringCellValue());
+	    	  final String materialQuantityString = Strings.nullToEmpty(materialQuantity.getStringCellValue());
+	    	  final String materialIdTwoString = materialIdTwo != null ? Strings.nullToEmpty(materialIdTwo.getStringCellValue()) : "";
+	    	  final String materialNameTwoString = materialIdTwoName != null ? Strings.nullToEmpty(materialIdTwoName.getStringCellValue()): "";
+	    	  final String materialIdThreeString = materialIdThree != null ? Strings.nullToEmpty(materialIdThree.getStringCellValue()): "";
+	    	  final String materialNameThreeString = materialIdThreeName != null ? Strings.nullToEmpty(materialIdThreeName.getStringCellValue()): "";
+	    	  final String materialIdFourString = materialIdFour != null ? Strings.nullToEmpty(materialIdFour.getStringCellValue()): "";
+	    	  final String materialNameFourString = materialIdFourName != null ? Strings.nullToEmpty(materialIdFourName.getStringCellValue()): "";
 	    	  StringBuffer buffer = new StringBuffer();
-	    	  buffer.append("课程来源:");
-	    	  buffer.append(courseProductId);
+	    	  buffer.append("产品编号:");
+	    	  buffer.append(productIdString);
 	    	  buffer.append(", 产品名称:");
-	    	  buffer.append(productName);
+	    	  buffer.append(productNameString);
 	    	  buffer.append(", 物料编码1:");
-	    	  buffer.append(materialId);
+	    	  buffer.append(materialIdString);
 	    	  buffer.append(", 物料名称1:");
-	    	  buffer.append(materialName);
+	    	  buffer.append(materialNameString);
 	    	  buffer.append(", 物料数量1:");
-	    	  buffer.append(materialQuantity);
+	    	  buffer.append(materialQuantityString);
 	    	  buffer.append(", 物料编码2:");
-	    	  buffer.append(materialIdTwo);
+	    	  buffer.append(materialIdTwoString);
 	    	  buffer.append(", 物料名称2:");
-	    	  buffer.append(materialIdTwoName);
+	    	  buffer.append(materialNameTwoString);
 	    	  buffer.append(", 物料编码3:");
-	    	  buffer.append(materialIdThree);
+	    	  buffer.append(materialIdThreeString);
 	    	  buffer.append(", 物料名称3:");
-	    	  buffer.append(materialIdThreeName);
+	    	  buffer.append(materialNameThreeString);
 	    	  buffer.append(", 物料编码4:");
-	    	  buffer.append(materialIdFour);
+	    	  buffer.append(materialIdFourString);
 	    	  buffer.append(", 物料名称4:");
-	    	  buffer.append(materialIdFourName);
+	    	  buffer.append(materialNameFourString);
 	    	  System.out.println(buffer.toString());
 	      }
 	}
