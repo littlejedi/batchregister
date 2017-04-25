@@ -2,7 +2,9 @@ package batchregister;
 
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.util.Iterator;
+import java.util.List;
 
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.Row;
@@ -10,20 +12,28 @@ import org.apache.poi.xssf.usermodel.XSSFSheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
 import com.google.common.base.Strings;
+import com.google.common.collect.Lists;
+
+import model.BomListRow;
+import utils.FileExportUtils;
 
 public class BatchProductCatalogProcessing {
-	
 	
 	public static void main(String[] args) throws Exception {
 		
 		  int base = 11;
 		
-		  File myFile = new File("C://Littlejedi/liangzhi/productcatalog.xlsx");
+		  File myFile = new File("C://Nick/stemcloud/productcatalog.xlsx");
 	      //BufferedReader fis = new BufferedReader(new InputStreamReader(new FileInputStream(myFile), "UTF8"));
 	      FileInputStream fis = new FileInputStream(myFile);
 
 	      // Finds the workbook instance for XLSX file
 	      XSSFWorkbook myWorkBook = new XSSFWorkbook(fis);
+	      
+	      // The workbook we are writing to
+	      XSSFWorkbook newWorkBook = new XSSFWorkbook();
+	      XSSFSheet bomListSheet = newWorkBook.createSheet("配件BOMList");
+	      FileExportUtils.insertRow(bomListSheet, "产品编号", "产品名称", "物料编号", "物料名称", "物料数量");
 
 	      // Return 4th sheet from the XLSX workbook
 	      XSSFSheet mySheet = myWorkBook.getSheetAt(0);
@@ -40,7 +50,7 @@ public class BatchProductCatalogProcessing {
 	    	  Cell productName = row.getCell(base);
 	    	  Cell materialId = row.getCell(base+1);
 	    	  Cell materialName = row.getCell(base+2);
-	    	  Cell materialQuantity = row.getCell(4);
+	    	  Cell materialQuantity = row.getCell(base+3);
 	    	  Cell materialIdTwo = row.getCell(base+4);
 	    	  Cell materialIdTwoName = row.getCell(base+5);
 	    	  Cell materialIdThree = row.getCell(base+6);
@@ -108,7 +118,27 @@ public class BatchProductCatalogProcessing {
 	    	  buffer.append(", 物料名称4:");
 	    	  buffer.append(materialNameFourString);
 	    	  System.out.println(buffer.toString());
+	    	  List<BomListRow> rows = Lists.newArrayList();
+	    	  if (!Strings.isNullOrEmpty(materialIdString) && !Strings.isNullOrEmpty(materialNameString)) {
+	    		  rows.add(new BomListRow(productIdString, productNameString, materialIdString, materialNameString, materialQuantityString));
+	    	  }
+              if (!Strings.isNullOrEmpty(materialIdTwoString) && !Strings.isNullOrEmpty(materialNameTwoString)) {
+            	  rows.add(new BomListRow(productIdString, productNameString, materialIdTwoString, materialNameTwoString, "1"));
+	    	  }
+              if (!Strings.isNullOrEmpty(materialIdThreeString) && !Strings.isNullOrEmpty(materialNameThreeString)) {
+            	  rows.add(new BomListRow(productIdString, productNameString, materialIdThreeString, materialNameThreeString, "1"));
+	    	  }
+              if (!Strings.isNullOrEmpty(materialIdFourString) && !Strings.isNullOrEmpty(materialNameFourString)) {
+            	  rows.add(new BomListRow(productIdString, productNameString, materialIdFourString, materialNameFourString, "1"));
+	    	  }
+              for (BomListRow bomListRow : rows) {
+            	  FileExportUtils.insertRow(bomListSheet, bomListRow.getProductSerialId(), bomListRow.getProductName(), bomListRow.getMaterialSerialId(), bomListRow.getMaterialName(), bomListRow.getMaterialQuantity());
+              }
 	      }
+	      
+	      FileOutputStream out = new FileOutputStream("C://Nick/stemcloud/bomlist.xlsx");
+	      newWorkBook.write(out);
+	      
 	}
 
 }
