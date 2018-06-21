@@ -15,8 +15,10 @@ import org.jasypt.util.password.BasicPasswordEncryptor;
 import com.google.common.base.Strings;
 import com.liangzhi.commons.domain.User;
 import com.liangzhi.commons.domain.UserCredentials;
+import com.liangzhi.commons.domain.UserGrade;
 import com.liangzhi.commons.domain.UserRegistration;
 import com.liangzhi.commons.domain.UserType;
+import com.luhuiguo.chinese.ChineseUtils;
 import com.sun.jersey.api.client.Client;
 import com.sun.jersey.api.client.ClientResponse;
 import com.sun.jersey.api.client.WebResource;
@@ -27,7 +29,7 @@ public class BatchRegisterNewUser {
     private static final String PASS = "coreapi!123";
 
     public static void main(String[] args) throws Exception {
-        File myFile = new File("/root/java/yingcai.xlsx");
+        File myFile = new File("C://temp/2018kexueying2.xlsx");
         //BufferedReader fis = new BufferedReader(new InputStreamReader(new FileInputStream(myFile), "UTF8"));
         FileInputStream fis = new FileInputStream(myFile);
 
@@ -48,18 +50,27 @@ public class BatchRegisterNewUser {
         // Traversing over each row of XLSX file
         while (rowIterator.hasNext()) {
             Row row = rowIterator.next();
-            Cell name = row.getCell(1);
+            Cell name = row.getCell(0);
             name.setCellType(Cell.CELL_TYPE_STRING);
-            Cell nationalId = row.getCell(1);
+            Cell nationalId = row.getCell(5);
             nationalId.setCellType(Cell.CELL_TYPE_STRING);
             Cell phone = row.getCell(1);
             phone.setCellType(Cell.CELL_TYPE_STRING);
-            Cell password = row.getCell(2);
+            Cell password = row.getCell(6);
             password.setCellType(Cell.CELL_TYPE_STRING);
+            Cell province = row.getCell(1);
+            province.setCellType(Cell.CELL_TYPE_STRING);
+            Cell city = row.getCell(7);
+            city.setCellType(Cell.CELL_TYPE_STRING);
+            Cell schoolName = row.getCell(2);
+            schoolName.setCellType(Cell.CELL_TYPE_STRING);
             String nameStr = name.getStringCellValue();
             String nationalIdStr = nationalId.getStringCellValue();
             String phoneStr = phone.getStringCellValue();
             String passwordStr = password.getStringCellValue();
+            String provinceStr = ChineseUtils.toSimplified(province.getStringCellValue());
+            String cityStr = ChineseUtils.toSimplified(city.getStringCellValue());
+            String schoolNameStr = ChineseUtils.toSimplified(schoolName.getStringCellValue());
             /*if (!nationalIdStr.equals("ycjhstem050") && skip) {
                 System.out.println("Skipping to ycjhstem050");
                 continue;
@@ -78,9 +89,13 @@ public class BatchRegisterNewUser {
             registration.setBasicPassword(basicPassword);
             registration.setType(UserType.REGULAR);
             registration.setRealName(nameStr);
-            registration.setPhoneNumber(phoneStr);
+            registration.setPhoneNumber(passwordStr);
             registration.setNationalId(nationalIdStr);
-            registration.setEmail(nationalIdStr);
+            registration.setEmail("test@stemcloud.cn");
+            registration.setProvince(provinceStr);
+            registration.setCity(cityStr);
+            registration.setSchoolName(schoolNameStr);
+            registration.setGrade(UserGrade.HIGH_SCHOOL);
             Client client = Client.create();
             client.addFilter(new HTTPBasicAuthFilter("root", PASS));
             client.setConnectTimeout(60000);
@@ -94,16 +109,16 @@ public class BatchRegisterNewUser {
             // Get user
             User user;
             try {
-              doRegister(nameStr, nationalIdStr, registration, username, basicPassword, client);
+              doRegister(nameStr, nationalIdStr, registration, username, basicPassword, provinceStr, cityStr, schoolNameStr, client);
             } catch (Exception e) {
             	// Retry forever
             	while (true) {
             		Thread.sleep(2000);
-            		doRegister(nameStr, nationalIdStr, registration, username, basicPassword, client);
+            		doRegister(nameStr, nationalIdStr, registration, username, basicPassword, provinceStr, cityStr, schoolNameStr, client);
             	}
             }
             // Verify login
-            webResource = client.resource("http://www.stemcloud.cn:8080/users/login");
+            webResource = client.resource("http://121.40.132.224:8080/users/login");
             UserCredentials credz = new UserCredentials(username, basicPassword);
             response = webResource.type(MediaType.APPLICATION_JSON)
                     .post(ClientResponse.class, credz);
@@ -117,15 +132,15 @@ public class BatchRegisterNewUser {
 
 	private static void doRegister(String nameStr, String nationalIdStr,
 			UserRegistration registration, final String username,
-			final String basicPassword, Client client) throws Exception {
+			final String basicPassword, final String province, final String city, final String schoolName, Client client) throws Exception {
 		WebResource webResource;
 		ClientResponse response;
 		User user;
 		webResource = client
-		        .resource("http://www.stemcloud.cn:8080/users").path("findByUsername").queryParam("username", username);
+		        .resource("http://121.40.132.224:8080/users").path("findByUsername").queryParam("username", username);
 		response = webResource.accept(MediaType.APPLICATION_JSON).get(ClientResponse.class);
 		if (response.getStatus() == 404) {
-		    webResource = client.resource("http://www.stemcloud.cn:8080/users/register");
+		    webResource = client.resource("http://121.40.132.224:8080/users/register");
 		    response = webResource.type(MediaType.APPLICATION_JSON + ";charset=utf-8")
 		            .post(ClientResponse.class, registration);
 		    if (response.getStatus() != 200) {
@@ -141,8 +156,12 @@ public class BatchRegisterNewUser {
 		    user.setRealName(nameStr);
 		    user.setPhoneNumber(nationalIdStr);
 		    user.setNationalId(nationalIdStr);
+            user.setProvince(province);
+            user.setCity(city);
+            user.setSchoolName(schoolName);
+            user.setGrade(UserGrade.HIGH_SCHOOL);
 		    user.setUsername(user.getUsername().trim());
-		    webResource = client.resource("http://www.stemcloud.cn:8080/users").path(user.getId().toString());
+		    webResource = client.resource("http://121.40.132.224:8080/users").path(user.getId().toString());
 		    response = webResource.type(MediaType.APPLICATION_JSON).put(ClientResponse.class, user);
 		    if (response.getStatus() != 200) {
 		        throw new Exception("response is not 200");

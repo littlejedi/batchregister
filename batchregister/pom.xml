@@ -25,6 +25,12 @@
 	        <version>3.11</version>
         </dependency>
         
+        <dependency>
+            <groupId>com.luhuiguo</groupId>
+            <artifactId>chinese-utils</artifactId>
+            <version>1.0</version>
+        </dependency>
+        
         <!-- Encryption -->
 		<dependency>
 			<groupId>org.jasypt</groupId>
