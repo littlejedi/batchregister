@@ -16,6 +16,7 @@ import org.jasypt.util.password.BasicPasswordEncryptor;
 
 import com.liangzhi.commons.domain.User;
 import com.liangzhi.commons.domain.UserCredentials;
+import com.liangzhi.commons.domain.UserGrade;
 import com.liangzhi.commons.domain.UserRegistration;
 import com.liangzhi.commons.domain.UserType;
 import com.sun.jersey.api.client.Client;
@@ -28,8 +29,8 @@ public class AnotherSimpleBatchRegister {
     private static final String PASS = "coreapi!123";
 
     public static void main(String[] args) throws Exception {
-        for (int i = 11; i <= 15; i++) {
-            String prefix = "sznswgy";
+        for (int i = 435; i <= 445; i++) {
+            String prefix = "2017yingcai";
             //String realNamePrefix = "è‹±æ‰�é¢„å¤‡ç�­";
             String username = prefix + String.format("%03d", i);
             String nameStr = prefix + String.format("%03d", i);
@@ -40,20 +41,23 @@ public class AnotherSimpleBatchRegister {
             registration.setRealName("备用账号" + nameStr);
             registration.setPhoneNumber(username);
             registration.setNationalId(nameStr);
+            registration.setGrade(UserGrade.HIGH_SCHOOL);
+            registration.setCity("上海市");
+            registration.setProvince("上海市");
             Client client = Client.create();
             client.addFilter(new HTTPBasicAuthFilter("root", PASS));
             client.setConnectTimeout(60000);
             client.setReadTimeout(60000);
             WebResource webResource = null;
             ClientResponse response = null;
-            //System.out.println(registration.toString());
+            System.out.println(registration.toString());
             // Get user
             User user;
             webResource = client
-                    .resource("http://www.stemcloud.cn:8080/users").path("findByUsername").queryParam("username", username);
+                    .resource("http://121.40.132.224:8080/users").path("findByUsername").queryParam("username", username);
             response = webResource.accept(MediaType.APPLICATION_JSON).get(ClientResponse.class);
             if (response.getStatus() == 404) {
-                webResource = client.resource("http://www.stemcloud.cn:8080/users/register");
+                webResource = client.resource("http://121.40.132.224:8080/users/register");
                 response = webResource.type(MediaType.APPLICATION_JSON + ";charset=utf-8")
                         .post(ClientResponse.class, registration);
                 if (response.getStatus() != 200) {
@@ -70,7 +74,7 @@ public class AnotherSimpleBatchRegister {
                 user.setPhoneNumber(username);
                 user.setNationalId(nameStr);
                 user.setUsername(user.getUsername().trim());
-                webResource = client.resource("http://www.stemcloud.cn:8080/users");
+                webResource = client.resource("http://121.40.132.224:8080/users");
                 response = webResource.path(user.getId().toString()).type(MediaType.APPLICATION_JSON)
                         .put(ClientResponse.class, user);
                 if (response.getStatus() != 200) {
@@ -79,7 +83,7 @@ public class AnotherSimpleBatchRegister {
                 System.out.println("Updating exising user " + registration.toString());
             }
             // Verify login
-            webResource = client.resource("http://www.stemcloud.cn:8080/users/login");
+            webResource = client.resource("http://121.40.132.224:8080/users/login");
             UserCredentials credz = new UserCredentials(username, "stem123");
             response = webResource.type(MediaType.APPLICATION_JSON)
                     .post(ClientResponse.class, credz);
