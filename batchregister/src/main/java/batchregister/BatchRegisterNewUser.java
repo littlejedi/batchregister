@@ -19,6 +19,7 @@ import com.liangzhi.commons.domain.UserCredentials;
 import com.liangzhi.commons.domain.UserGrade;
 import com.liangzhi.commons.domain.UserRegistration;
 import com.liangzhi.commons.domain.UserType;
+import com.luhuiguo.chinese.ChineseUtils;
 import com.sun.jersey.api.client.Client;
 import com.sun.jersey.api.client.ClientResponse;
 import com.sun.jersey.api.client.WebResource;
@@ -29,6 +30,7 @@ public class BatchRegisterNewUser {
     private static final String PASS = "coreapi!123";
 
     public static void main(String[] args) throws Exception {
+
         File myFile = new File("C://temp/大连八十中信息表.xlsx");
         //BufferedReader fis = new BufferedReader(new InputStreamReader(new FileInputStream(myFile), "UTF8"));
         FileInputStream fis = new FileInputStream(myFile);
@@ -74,10 +76,10 @@ public class BatchRegisterNewUser {
             String nationalIdStr = nationalId.getStringCellValue();
             String phoneStr = phone.getStringCellValue();
             String passwordStr = password.getStringCellValue();
-            String provinceStr = province.getStringCellValue();
-            String cityStr = city.getStringCellValue();
-            String districtStr = district.getStringCellValue();
-            String schoolNameStr = schoolName.getStringCellValue();
+            String provinceStr = ChineseUtils.toSimplified(province.getStringCellValue());
+            String cityStr = ChineseUtils.toSimplified(city.getStringCellValue());
+            String districtStr = ChineseUtils.toSimplified(district.getStringCellValue());
+            String schoolNameStr = ChineseUtils.toSimplified(schoolName.getStringCellValue());
             /*if (!nationalIdStr.equals("ycjhstem050") && skip) {
                 System.out.println("Skipping to ycjhstem050");
                 continue;
@@ -96,7 +98,7 @@ public class BatchRegisterNewUser {
             registration.setBasicPassword(basicPassword);
             registration.setType(UserType.REGULAR);
             registration.setRealName(nameStr);
-            registration.setPhoneNumber(phoneStr);
+            registration.setPhoneNumber(passwordStr);
             registration.setNationalId(nationalIdStr);
             registration.setEmail(email.getStringCellValue());
             registration.setGrade(UserGrade.MIDDLE_SCHOOL);
